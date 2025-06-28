@@ -45,6 +45,32 @@ def calculator_repl():
                     print("Goodbye!")
                     break
 
+                if command == 'history':
+                    for idx, calc_entry in enumerate(calc.get_history(), start=1):
+                        print(f"{idx}: {calc_entry}")
+                    continue
+
+                if command == 'clear':
+                    calc.clear_history()
+                    print("History cleared.")
+                    continue
+
+                if command == 'undo':
+                    try:
+                        calc.undo()
+                        print("Last calculation undone.")
+                    except IndexError:
+                        print("Nothing to undo.")
+                    continue
+
+                if command == 'redo':
+                    try:
+                        calc.redo()
+                        print("Redo successful.")
+                    except IndexError:
+                        print("Nothing to redo.")
+                    continue
+
                 if command in ['add', 'subtract', 'multiply', 'divide', 'power', 'root','int_divide', 'percent', 'abs_dif']:
                     # Perform the specified arithmetic operation
                     try:
