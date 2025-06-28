@@ -30,7 +30,7 @@ def calculator_repl():
                 if command == 'help':
                     # Display available commands
                     print("\nAvailable commands:")
-                    print("  add, subtract, multiply, divide, power, root - Perform calculations")
+                    print("  add, subtract, multiply, divide, power, root, modulus, int_divide, percent, abs_dif - Perform arithmetic operations")
                     print("  history - Show calculation history")
                     print("  clear - Clear calculation history")
                     print("  undo - Undo the last calculation")
@@ -44,6 +44,32 @@ def calculator_repl():
                     # Attempt to save history before exiting
                     print("Goodbye!")
                     break
+
+                if command == 'history':
+                    for idx, calc_entry in enumerate(calc.get_history(), start=1):
+                        print(f"{idx}: {calc_entry}")
+                    continue
+
+                if command == 'clear':
+                    calc.clear_history()
+                    print("History cleared.")
+                    continue
+
+                if command == 'undo':
+                    try:
+                        calc.undo()
+                        print("Last calculation undone.")
+                    except IndexError:
+                        print("Nothing to undo.")
+                    continue
+
+                if command == 'redo':
+                    try:
+                        calc.redo()
+                        print("Redo successful.")
+                    except IndexError:
+                        print("Nothing to redo.")
+                    continue
 
                 if command in ['add', 'subtract', 'multiply', 'divide', 'power', 'root','int_divide', 'percent', 'abs_dif']:
                     # Perform the specified arithmetic operation
@@ -97,5 +123,4 @@ def calculator_repl():
     except Exception as e:
         # Handle fatal errors during initialization
         print(f"Fatal error: {e}")
-        logging.error(f"Fatal error in calculator REPL: {e}")
         raise
