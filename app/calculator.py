@@ -12,6 +12,7 @@ from app.calculation import Calculation
 from app.exceptions import OperationError, ValidationError
 from app.input_validators import InputValidator
 from app.operations import Operation
+from app.history import History
 
 # Type aliases for better readability
 Number = Union[int, float, Decimal]
@@ -21,14 +22,11 @@ CalculationResult = Union[Number, str]
 class Calculator:
 
     def __init__(self):
-        """
-        Initializes the Calculator with a configuration and no operation strategy.
-        """
+        """Initialize the Calculator and its history manager."""
         self.operation_strategy: Operation = None
+        self.history = History()
         logging.info("Calculator initialized with default configuration.")
         
-
-
     def set_operation(self, operation: Operation) -> None:
         self.operation_strategy = operation
         logging.info(f"Set operation: {operation}")
@@ -55,6 +53,8 @@ class Calculator:
                 operand1=validated_a,
                 operand2=validated_b
             )
+        
+            self.history.add_calculation(calculation)
 
             return result
 
@@ -67,4 +67,18 @@ class Calculator:
             logging.error(f"Operation failed: {str(e)}")
             raise OperationError(f"Operation failed: {str(e)}")
 
-    
+    def undo(self) -> None:
+        """Undo the last calculation."""
+        self.history.undo()
+
+    def redo(self) -> None:
+        """Redo the last undone calculation."""
+        self.history.redo()
+
+    def clear_history(self) -> None:
+        """Clear all recorded calculations."""
+        self.history.clear()
+
+    def get_history(self) -> list[Calculation]:
+        """Return a copy of the calculation history."""
+        return self.history.get_history()
