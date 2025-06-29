@@ -6,6 +6,7 @@ from decimal import Decimal
 import logging
 from pathlib import Path
 from typing import Union
+from typing import Union, List
 
 
 from app.calculation import Calculation
@@ -13,6 +14,7 @@ from app.exceptions import OperationError, ValidationError
 from app.input_validators import InputValidator
 from app.operations import Operation
 from app.history import History
+from app.observers import Observer
 
 # Type aliases for better readability
 Number = Union[int, float, Decimal]
@@ -25,7 +27,25 @@ class Calculator:
         """Initialize the Calculator and its history manager."""
         self.operation_strategy: Operation = None
         self.history = History()
+        self._observers: List[Observer] = []
         logging.info("Calculator initialized with default configuration.")
+
+    # ------------------------------------------------------------------
+    # Observer management
+    def add_observer(self, observer: Observer) -> None:
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def remove_observer(self, observer: Observer) -> None:
+        if observer in self._observers:
+            self._observers.remove(observer)
+
+    def _notify_observers(self, calculation: Calculation) -> None:
+        for obs in list(self._observers):
+            try:
+                obs.update(calculation, self.history.get_history())
+            except Exception as exc:  # pragma: no cover - observer errors
+                logging.error(f"Observer {obs} failed: {exc}")
         
     def set_operation(self, operation: Operation) -> None:
         self.operation_strategy = operation
@@ -55,6 +75,7 @@ class Calculator:
             )
         
             self.history.add_calculation(calculation)
+            self._notify_observers(calculation)
 
             return result
 
