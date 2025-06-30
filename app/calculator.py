@@ -2,10 +2,11 @@
 # Calculator Class      #
 ########################
 
-from decimal import Decimal
+from decimal import Decimal, getcontext
 import logging
 from pathlib import Path
 from typing import Union
+from typing import Union, List
 
 
 from app.calculation import Calculation
@@ -13,6 +14,8 @@ from app.exceptions import OperationError, ValidationError
 from app.input_validators import InputValidator
 from app.operations import Operation
 from app.history import History
+from app.observers import Observer, LoggingObserver, AutoSaveObserver
+from app.calculator_config import config
 
 # Type aliases for better readability
 Number = Union[int, float, Decimal]
@@ -25,7 +28,34 @@ class Calculator:
         """Initialize the Calculator and its history manager."""
         self.operation_strategy: Operation = None
         self.history = History()
-        logging.info("Calculator initialized with default configuration.")
+        self._observers: List[Observer] = []
+       
+        # Apply configuration settings
+        getcontext().prec = config.precision
+
+        # Register default observers
+        self.add_observer(LoggingObserver())
+        if config.auto_save:
+            self.add_observer(AutoSaveObserver())
+
+        logging.info("Calculator initialized with configuration.")
+        
+    # ------------------------------------------------------------------
+    # Observer management
+    def add_observer(self, observer: Observer) -> None:
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def remove_observer(self, observer: Observer) -> None:
+        if observer in self._observers:
+            self._observers.remove(observer)
+
+    def _notify_observers(self, calculation: Calculation) -> None:
+        for obs in list(self._observers):
+            try:
+                obs.update(calculation, self.history.get_history())
+            except Exception as exc:  # pragma: no cover - observer errors
+                logging.error(f"Observer {obs} failed: {exc}")
         
     def set_operation(self, operation: Operation) -> None:
         self.operation_strategy = operation
@@ -55,6 +85,7 @@ class Calculator:
             )
         
             self.history.add_calculation(calculation)
+            self._notify_observers(calculation)
 
             return result
 

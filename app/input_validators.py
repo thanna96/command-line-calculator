@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any
 from app.exceptions import ValidationError
+from app.calculator_config import config
 
 @dataclass
 class InputValidator:
@@ -30,6 +31,13 @@ class InputValidator:
             if isinstance(value, str):
                 value = value.strip()
             number = Decimal(str(value))
+
+            # Enforce maximum input value if configured
+            if abs(number) > config.max_input_value:
+                raise ValidationError(
+                    f"Input {value} exceeds maximum allowed value {config.max_input_value}"
+                )
+            
             return number.normalize()
         except InvalidOperation as e:
             raise ValidationError(f"Invalid number format: {value}") from e
