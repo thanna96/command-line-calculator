@@ -5,7 +5,7 @@
 from dataclasses import dataclass, field
 import datetime
 from decimal import Decimal, InvalidOperation
-import logging
+from app.logger import logger
 from typing import Any, Dict
 
 from app.exceptions import OperationError
@@ -169,7 +169,7 @@ class Calculation:
             # Verify the result matches (helps catch data corruption)
             saved_result = Decimal(data['result'])
             if calc.result != saved_result:
-                logging.warning(
+                logger.warning(
                     f"Loaded calculation result {saved_result} "
                     f"differs from computed result {calc.result}"
                 )  # pragma: no cover

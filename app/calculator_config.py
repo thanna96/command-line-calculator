@@ -12,6 +12,7 @@ from app.exceptions import ConfigurationError
 @dataclass
 class CalculatorConfig:
     log_dir: Path = Path("logs")
+    log_file: Path = Path("calculator.log")
     history_dir: Path = Path("history")
     max_history_size: int = 100
     auto_save: bool = True
@@ -25,6 +26,7 @@ def load_config(dotenv_path: str | Path = ".env") -> CalculatorConfig:
     try:
         cfg = CalculatorConfig(
             log_dir=Path(os.getenv("CALCULATOR_LOG_DIR", "logs")),
+            log_file=Path(os.getenv("CALCULATOR_LOG_FILE", "calculator.log")),
             history_dir=Path(os.getenv("CALCULATOR_HISTORY_DIR", "history")),
             max_history_size=int(os.getenv("CALCULATOR_MAX_HISTORY_SIZE", "100")),
             auto_save=os.getenv("CALCULATOR_AUTO_SAVE", "true").lower() == "true",
@@ -37,7 +39,9 @@ def load_config(dotenv_path: str | Path = ".env") -> CalculatorConfig:
 
     cfg.log_dir.mkdir(parents=True, exist_ok=True)
     cfg.history_dir.mkdir(parents=True, exist_ok=True)
-
+    if not cfg.log_file.is_absolute():
+        cfg.log_file = cfg.log_dir / cfg.log_file
+    cfg.log_file.parent.mkdir(parents=True, exist_ok=True)
     return cfg
 
 
