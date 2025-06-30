@@ -5,6 +5,7 @@ from typing import List
 from app.calculation import Calculation
 from app.calculator_memento import CalculatorMemento
 from app.calculator_config import config
+from pathlib import Path
 
 
 class History:
@@ -61,31 +62,47 @@ class History:
 
     # ------------------------------------------------------------------
     # Persistence operations
-    def save_to_csv(self, file_path: str | Path) -> None:
+    def to_dataframe(self):
+        """Return the history as a pandas DataFrame."""
+        import pandas as pd
+
+        data = [c.to_dict() for c in self._calculations]
+        return pd.DataFrame(
+            data,
+            columns=["operation", "operand1", "operand2", "result", "timestamp"],
+        )
+
+    def from_dataframe(self, df) -> None:
+        """Load history from a pandas DataFrame."""
+        calculations = [
+            Calculation.from_dict(row.to_dict())
+            for _, row in df.iterrows()
+        ]
+        self._calculations = calculations
+        self._undo_stack.clear()
+        self._redo_stack.clear()
+
+    def save_to_csv(self, file_path: str | Path | None = None) -> None:
         """Save history to a CSV file."""
         try:
             import pandas as pd
-            path = Path(file_path)
-            data = [c.to_dict() for c in self._calculations]
-            df = pd.DataFrame(data)
+            path = Path(file_path) if file_path else config.history_dir / config.history_file
+            df = self.to_dataframe()
             df.to_csv(path, index=False, encoding=config.default_encoding)
         except Exception as exc:  # pragma: no cover - I/O errors
             from app.exceptions import DataError
             raise DataError(f"Failed to save history to CSV: {exc}") from exc
 
-    def load_from_csv(self, file_path: str | Path) -> None:
+    def load_from_csv(self, file_path: str | Path | None = None) -> None:
         """Load history from a CSV file."""
         try:
             import pandas as pd
-            path = Path(file_path)
+            path = Path(file_path) if file_path else config.history_dir / config.history_file
             df = pd.read_csv(path, encoding=config.default_encoding)
-            calculations = [Calculation.from_dict(row.to_dict()) for _, row in df.iterrows()]
-            self._calculations = calculations
-            self._undo_stack.clear()
-            self._redo_stack.clear()
+            self.from_dataframe(df)
         except FileNotFoundError as exc:
             from app.exceptions import DataError
-            raise DataError(f"File not found: {file_path}") from exc
+            raise DataError(f"File not found: {path}") from exc
         except Exception as exc:  # pragma: no cover - I/O errors
             from app.exceptions import DataError
             raise DataError(f"Failed to load history from CSV: {exc}") from exc

@@ -16,6 +16,7 @@ def test_load_config_defaults(tmp_path, monkeypatch):
     assert isinstance(cfg, CalculatorConfig)
     assert cfg.log_dir.name == "logs"
     assert cfg.log_file.name == "calculator.log"
+    assert cfg.history_file.name == "history.csv"
     assert cfg.auto_save is True
 
 
@@ -27,6 +28,7 @@ def test_load_config_override(tmp_path):
                 "CALCULATOR_LOG_DIR=data_logs",
                 "CALCULATOR_LOG_FILE=my.log",
                 "CALCULATOR_HISTORY_DIR=data_history",
+                "CALCULATOR_HISTORY_FILE=my.csv",
                 "CALCULATOR_MAX_HISTORY_SIZE=5",
                 "CALCULATOR_AUTO_SAVE=false",
                 "CALCULATOR_PRECISION=5",
@@ -38,6 +40,7 @@ def test_load_config_override(tmp_path):
     cfg = load_config(env_file)
     assert cfg.log_dir.name == "data_logs"
     assert cfg.log_file.name == "my.log"
+    assert cfg.history_file.name == "my.csv"
     assert cfg.history_dir.name == "data_history"
     assert cfg.max_history_size == 5
     assert cfg.auto_save is False

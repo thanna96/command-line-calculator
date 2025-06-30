@@ -40,6 +40,6 @@ class InputValidator:
                     f"Input {value} exceeds maximum allowed value {config.max_input_value}"
                 )
             
-            return number.normalize()
+            return number
         except InvalidOperation as e:
             raise ValidationError(f"Invalid number format: {value}") from e
