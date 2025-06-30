@@ -4,6 +4,7 @@ from typing import List
 
 from app.calculation import Calculation
 from app.calculator_memento import CalculatorMemento
+from app.calculator_config import config
 
 
 class History:
@@ -29,6 +30,10 @@ class History:
         self._undo_stack.append(self._create_memento())
         self._calculations.append(calculation)
         self._redo_stack.clear()
+          
+        # Trim history if it exceeds the configured maximum size
+        if config.max_history_size and len(self._calculations) > config.max_history_size:
+            self._calculations = self._calculations[-config.max_history_size :]
 
     def clear(self) -> None:
         self._calculations.clear()

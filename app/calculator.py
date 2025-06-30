@@ -2,7 +2,7 @@
 # Calculator Class      #
 ########################
 
-from decimal import Decimal
+from decimal import Decimal, getcontext
 import logging
 from pathlib import Path
 from typing import Union
@@ -14,7 +14,8 @@ from app.exceptions import OperationError, ValidationError
 from app.input_validators import InputValidator
 from app.operations import Operation
 from app.history import History
-from app.observers import Observer
+from app.observers import Observer, LoggingObserver, AutoSaveObserver
+from app.calculator_config import config
 
 # Type aliases for better readability
 Number = Union[int, float, Decimal]
@@ -28,8 +29,17 @@ class Calculator:
         self.operation_strategy: Operation = None
         self.history = History()
         self._observers: List[Observer] = []
-        logging.info("Calculator initialized with default configuration.")
+       
+        # Apply configuration settings
+        getcontext().prec = config.precision
 
+        # Register default observers
+        self.add_observer(LoggingObserver())
+        if config.auto_save:
+            self.add_observer(AutoSaveObserver())
+
+        logging.info("Calculator initialized with configuration.")
+        
     # ------------------------------------------------------------------
     # Observer management
     def add_observer(self, observer: Observer) -> None:

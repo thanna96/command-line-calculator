@@ -231,7 +231,7 @@ class Calculation:
             self.result == other.result
         )
 
-    def format_result(self, precision: int = 10) -> str:
+    def format_result(self, precision: int | None = None) -> str:
         """
         Format the calculation result with specified precision.
 
@@ -239,15 +239,19 @@ class Calculation:
         removing any trailing zeros for a cleaner presentation.
 
         Args:
-            precision (int, optional): Number of decimal places to show. Defaults to 10.
+            precision (int, optional): Number of decimal places to show. Defaults to configuration value.
 
         Returns:
             str: Formatted string representation of the result.
         """
+        if precision is None:
+            from app.calculator_config import config
+            precision = config.precision
         try:
-            # Remove trailing zeros and format to specified precision
-            return str(self.result.normalize().quantize(
-                Decimal('0.' + '0' * precision)
-            ).normalize())
+             return str(
+                self.result.normalize().quantize(
+                    Decimal('0.' + '0' * precision)
+                ).normalize()
+            )
         except InvalidOperation:  # pragma: no cover
             return str(self.result)
