@@ -3,9 +3,7 @@
 ########################
 
 from decimal import Decimal, getcontext
-import logging
-from pathlib import Path
-from typing import Union
+from app.logger import logger
 from typing import Union, List
 
 
@@ -38,7 +36,7 @@ class Calculator:
         if config.auto_save:
             self.add_observer(AutoSaveObserver())
 
-        logging.info("Calculator initialized with configuration.")
+        logger.info("Calculator initialized with configuration.")
         
     # ------------------------------------------------------------------
     # Observer management
@@ -55,11 +53,11 @@ class Calculator:
             try:
                 obs.update(calculation, self.history.get_history())
             except Exception as exc:  # pragma: no cover - observer errors
-                logging.error(f"Observer {obs} failed: {exc}")
+                logger.error(f"Observer {obs} failed: {exc}")
         
     def set_operation(self, operation: Operation) -> None:
         self.operation_strategy = operation
-        logging.info(f"Set operation: {operation}")
+        logger.info(f"Set operation: {operation}")
 
     def perform_operation(
         self,
@@ -91,11 +89,11 @@ class Calculator:
 
         except ValidationError as e:
             # Log and re-raise validation errors
-            logging.error(f"Validation error: {str(e)}")
+            logger.error(f"Validation error: {str(e)}")
             raise
         except Exception as e:
             # Log and raise operation errors for any other exceptions
-            logging.error(f"Operation failed: {str(e)}")
+            logger.error(f"Operation failed: {str(e)}")
             raise OperationError(f"Operation failed: {str(e)}")
 
     def undo(self) -> None:

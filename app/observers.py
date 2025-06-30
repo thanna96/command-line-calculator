@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List
-import logging
+from app.logger import logger
 
 from app.calculation import Calculation
 from app.calculator_config import config
@@ -20,7 +20,7 @@ class Observer(ABC):
 class LoggingObserver(Observer):
     """Logs calculation details to a file."""
 
-    def __init__(self, log_file: Path | str = config.log_dir / "calculator.log") -> None:
+    def __init__(self, log_file: Path | str = config.log_file) -> None:
         self.log_file = Path(log_file)
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -34,7 +34,7 @@ class LoggingObserver(Observer):
         )
         with open(self.log_file, "a", encoding=config.default_encoding) as fh:
             fh.write(message)
-        logging.debug(f"Logged calculation to {self.log_file}: {message.strip()}")
+        logger.debug(f"Logged calculation to {self.log_file}: {message.strip()}")
 
 
 class AutoSaveObserver(Observer):
@@ -48,13 +48,10 @@ class AutoSaveObserver(Observer):
         try:
             import pandas as pd
         except Exception as exc:  # pragma: no cover - dependency issues
-            logging.error(f"Pandas not available: {exc}")
+            logger.error(f"Pandas not available: {exc}")
             return
+        data = [calc.to_dict() for calc in history]
+        df = pd.DataFrame(data)
+        df.to_csv(self.csv_file, index=False, encoding=config.default_encoding)
+        logger.debug(f"Auto-saved history to {self.csv_file}")
 
-        try:
-            data = [calc.to_dict() for calc in history]
-            df = pd.DataFrame(data)
-            df.to_csv(self.csv_file, index=False, encoding=config.default_encoding)
-            logging.debug(f"Auto-saved history to {self.csv_file}")
-        except Exception as exc:  # pragma: no cover - I/O errors
-            logging.error(f"Auto-save failed: {exc}")
