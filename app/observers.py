@@ -51,7 +51,10 @@ class AutoSaveObserver(Observer):
             logging.error(f"Pandas not available: {exc}")
             return
 
-        data = [calc.to_dict() for calc in history]
-        df = pd.DataFrame(data)
-        df.to_csv(self.csv_file, index=False, encoding=config.default_encoding)
-        logging.debug(f"Auto-saved history to {self.csv_file}")
+        try:
+            data = [calc.to_dict() for calc in history]
+            df = pd.DataFrame(data)
+            df.to_csv(self.csv_file, index=False, encoding=config.default_encoding)
+            logging.debug(f"Auto-saved history to {self.csv_file}")
+        except Exception as exc:  # pragma: no cover - I/O errors
+            logging.error(f"Auto-save failed: {exc}")

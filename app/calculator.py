@@ -113,3 +113,11 @@ class Calculator:
     def get_history(self) -> list[Calculation]:
         """Return a copy of the calculation history."""
         return self.history.get_history()
+    
+    def save_history(self, file_path: str | Path) -> None:
+        """Save calculation history to a CSV file."""
+        self.history.save_to_csv(file_path)
+
+    def load_history(self, file_path: str | Path) -> None:
+        """Load calculation history from a CSV file."""
+        self.history.load_from_csv(file_path)

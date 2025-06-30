@@ -5,7 +5,8 @@
 from decimal import Decimal
 
 from app.calculator import Calculator
-from app.exceptions import OperationError, ValidationError
+from app.exceptions import OperationError, ValidationError, DataError
+from app.calculator_config import config
 from app.operations import OperationFactory
 
 
@@ -69,6 +70,28 @@ def calculator_repl():
                         print("Redo successful.")
                     except IndexError:
                         print("Nothing to redo.")
+                    continue
+
+                if command == 'save':
+                    path = input("File to save to (blank for default): ").strip()
+                    if not path:
+                        path = str(config.history_dir / "history.csv")
+                    try:
+                        calc.save_history(path)
+                        print(f"History saved to {path}")
+                    except DataError as e:
+                        print(f"Error: {e}")
+                    continue
+
+                if command == 'load':
+                    path = input("File to load from (blank for default): ").strip()
+                    if not path:
+                        path = str(config.history_dir / "history.csv")
+                    try:
+                        calc.load_history(path)
+                        print(f"History loaded from {path}")
+                    except DataError as e:
+                        print(f"Error: {e}")
                     continue
 
                 if command in ['add', 'subtract', 'multiply', 'divide', 'power', 'root','int_divide', 'percent', 'abs_dif']:

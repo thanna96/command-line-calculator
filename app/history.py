@@ -58,3 +58,34 @@ class History:
         self._undo_stack.append(self._create_memento())
         memento = self._redo_stack.pop()
         self._restore_memento(memento)
+
+    # ------------------------------------------------------------------
+    # Persistence operations
+    def save_to_csv(self, file_path: str | Path) -> None:
+        """Save history to a CSV file."""
+        try:
+            import pandas as pd
+            path = Path(file_path)
+            data = [c.to_dict() for c in self._calculations]
+            df = pd.DataFrame(data)
+            df.to_csv(path, index=False, encoding=config.default_encoding)
+        except Exception as exc:  # pragma: no cover - I/O errors
+            from app.exceptions import DataError
+            raise DataError(f"Failed to save history to CSV: {exc}") from exc
+
+    def load_from_csv(self, file_path: str | Path) -> None:
+        """Load history from a CSV file."""
+        try:
+            import pandas as pd
+            path = Path(file_path)
+            df = pd.read_csv(path, encoding=config.default_encoding)
+            calculations = [Calculation.from_dict(row.to_dict()) for _, row in df.iterrows()]
+            self._calculations = calculations
+            self._undo_stack.clear()
+            self._redo_stack.clear()
+        except FileNotFoundError as exc:
+            from app.exceptions import DataError
+            raise DataError(f"File not found: {file_path}") from exc
+        except Exception as exc:  # pragma: no cover - I/O errors
+            from app.exceptions import DataError
+            raise DataError(f"Failed to load history from CSV: {exc}") from exc
