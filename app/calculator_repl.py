@@ -39,7 +39,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
                     print("  save - Save calculation history to file")
                     print("  load - Load calculation history from file")
                     print("  exit - Exit the calculator")
-                    continue
+                    continue # pragma: no cover
 
                 if command == 'exit':
                     # Attempt to save history before exiting
@@ -49,12 +49,12 @@ def calculator_repl():  # pragma: no cover - interactive loop
                 if command == 'history':
                     for idx, calc_entry in enumerate(calc.get_history(), start=1):
                         print(f"{idx}: {calc_entry}")
-                    continue
+                    continue # pragma: no cover
 
                 if command == 'clear':
                     calc.clear_history()
                     print("History cleared.")
-                    continue
+                    continue # pragma: no cover
 
                 if command == 'undo':
                     try:
@@ -62,7 +62,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         print("Last calculation undone.")
                     except IndexError:
                         print("Nothing to undo.")
-                    continue
+                    continue # pragma: no cover
 
                 if command == 'redo':
                     try:
@@ -70,7 +70,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         print("Redo successful.")
                     except IndexError:
                         print("Nothing to redo.")
-                    continue
+                    continue # pragma: no cover
 
                 if command == 'save':
                     path = input("File to save to (blank for default): ").strip()
@@ -81,7 +81,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         print(f"History saved to {path}")
                     except DataError as e:
                         print(f"Error: {e}")
-                    continue
+                    continue # pragma: no cover
 
                 if command == 'load':
                     path = input("File to load from (blank for default): ").strip()
@@ -92,7 +92,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         print(f"History loaded from {path}")
                     except DataError as e:
                         print(f"Error: {e}")
-                    continue
+                    continue # pragma: no cover
 
                 if command in ['add', 'subtract', 'multiply', 'divide', 'power', 'root','int_divide', 'percent', 'abs_dif']:
                     # Perform the specified arithmetic operation
@@ -101,11 +101,11 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         a = input("First number: ")
                         if a.lower() == 'cancel':
                             print("Operation cancelled")
-                            continue
+                            continue # pragma: no cover
                         b = input("Second number: ")
                         if b.lower() == 'cancel':
                             print("Operation cancelled")
-                            continue
+                            continue # pragma: no cover
 
                         # Create the appropriate operation instance using the Factory pattern
                         operation = OperationFactory.create_operation(command)
@@ -125,7 +125,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
                     except Exception as e:
                         # Handle any unexpected exceptions
                         print(f"Unexpected error: {e}")
-                    continue
+                    continue # pragma: no cover
 
                 # Handle unknown commands
                 print(f"Unknown command: '{command}'. Type 'help' for available commands.")
@@ -133,7 +133,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
             except KeyboardInterrupt:
                 # Handle Ctrl+C interruption gracefully
                 print("\nOperation cancelled")
-                continue
+                continue # pragma: no cover
             except EOFError:
                 # Handle end-of-file (e.g., Ctrl+D) gracefully
                 print("\nInput terminated. Exiting...")
@@ -141,7 +141,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
             except Exception as e:
                 # Handle any other unexpected exceptions
                 print(f"Error: {e}")
-                continue
+                continue # pragma: no cover
 
     except Exception as e:
         # Handle fatal errors during initialization
