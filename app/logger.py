@@ -21,7 +21,7 @@ class Logger:
         return cls._logger
 
     @classmethod
-    def _setup_logger(cls) -> None:
+    def _setup_logger(cls) -> None:  # pragma: no cover - file I/O setup
         logger = logging.getLogger("calculator")
         logger.setLevel(logging.DEBUG)
 

@@ -10,7 +10,7 @@ from app.calculator_config import config
 from app.operations import OperationFactory
 
 
-def calculator_repl():
+def calculator_repl():  # pragma: no cover - interactive loop
     """
     Command-line interface for the calculator.
 
