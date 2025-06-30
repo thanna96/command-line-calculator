@@ -28,6 +28,8 @@ class InputValidator:
             ValidationError: If input is invalid
         """
         try:
+            if value is None or (isinstance(value, str) and not value.strip()):
+                raise ValidationError("Input cannot be empty")
             if isinstance(value, str):
                 value = value.strip()
             number = Decimal(str(value))
