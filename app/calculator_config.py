@@ -4,7 +4,20 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except Exception:  # pragma: no cover - optional dependency
+    def load_dotenv(path: str | Path, override: bool = True) -> None:
+        """Minimal .env loader used when python-dotenv is unavailable."""
+        path = Path(path)
+        if not path.exists():
+            return
+        for line in path.read_text().splitlines():
+            if '=' not in line or line.strip().startswith('#'):
+                continue
+            key, value = line.split('=', 1)
+            if override or key not in os.environ:
+                os.environ[key] = value
 
 from app.exceptions import ConfigurationError
 

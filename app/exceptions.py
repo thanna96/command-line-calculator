@@ -40,3 +40,7 @@ class ConfigurationError(CalculatorError):
     such as invalid directory paths or improper configuration values.
     """
     pass
+
+class DataError(CalculatorError):
+    """Raised when data persistence operations fail."""
+    pass
