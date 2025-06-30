@@ -50,8 +50,8 @@ class AutoSaveObserver(Observer):
         except Exception as exc:  # pragma: no cover - dependency issues
             logger.error(f"Pandas not available: {exc}")
             return
-
         data = [calc.to_dict() for calc in history]
         df = pd.DataFrame(data)
         df.to_csv(self.csv_file, index=False, encoding=config.default_encoding)
         logger.debug(f"Auto-saved history to {self.csv_file}")
+
