@@ -8,6 +8,7 @@ from app.calculator import Calculator
 from app.exceptions import OperationError, ValidationError, DataError
 from app.calculator_config import config
 from app.operations import OperationFactory
+from colorama import Fore, Style, init
 
 
 def calculator_repl():  # pragma: no cover - interactive loop
@@ -18,10 +19,11 @@ def calculator_repl():  # pragma: no cover - interactive loop
     for commands, processes arithmetic operations, and manages calculation history.
     """
     try:
+        init(autoreset=True)
         # Initialize the Calculator instance
         calc = Calculator()
 
-        print("Calculator started. Type 'help' for commands.")
+        print(Fore.CYAN + "Calculator started. Type 'help' for commands.")
 
         while True:
             try:
@@ -30,7 +32,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
 
                 if command == 'help':
                     # Display available commands
-                    print("\nAvailable commands:")
+                    print(Fore.YELLOW + "\nAvailable commands:")
                     print("  add, subtract, multiply, divide, power, root, modulus, int_divide, percent, abs_dif - Perform arithmetic operations")
                     print("  history - Show calculation history")
                     print("  clear - Clear calculation history")
@@ -43,7 +45,7 @@ def calculator_repl():  # pragma: no cover - interactive loop
 
                 if command == 'exit':
                     # Attempt to save history before exiting
-                    print("Goodbye!")
+                    print(Fore.CYAN + "Goodbye!")
                     break
 
                 if command == 'history':
@@ -53,23 +55,23 @@ def calculator_repl():  # pragma: no cover - interactive loop
 
                 if command == 'clear':
                     calc.clear_history()
-                    print("History cleared.")
+                    print(Fore.GREEN + "History cleared.")
                     continue # pragma: no cover
 
                 if command == 'undo':
                     try:
                         calc.undo()
-                        print("Last calculation undone.")
+                        print(Fore.GREEN + "Last calculation undone.")
                     except IndexError:
-                        print("Nothing to undo.")
+                        print(Fore.RED + "Nothing to undo.")
                     continue # pragma: no cover
 
                 if command == 'redo':
                     try:
                         calc.redo()
-                        print("Redo successful.")
+                        print(Fore.GREEN + "Redo successful.")
                     except IndexError:
-                        print("Nothing to redo.")
+                        print(Fore.RED + "Nothing to redo.")
                     continue # pragma: no cover
 
                 if command == 'save':
@@ -78,9 +80,9 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         path = str(config.history_dir / "history.csv")
                     try:
                         calc.save_history(path)
-                        print(f"History saved to {path}")
+                        print(Fore.GREEN + f"History saved to {path}")
                     except DataError as e:
-                        print(f"Error: {e}")
+                        print(Fore.RED + f"Error: {e}")
                     continue # pragma: no cover
 
                 if command == 'load':
@@ -89,22 +91,22 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         path = str(config.history_dir / "history.csv")
                     try:
                         calc.load_history(path)
-                        print(f"History loaded from {path}")
+                        print(Fore.GREEN + f"History loaded from {path}")
                     except DataError as e:
-                        print(f"Error: {e}")
+                        print(Fore.RED + f"Error: {e}")
                     continue # pragma: no cover
 
                 if command in ['add', 'subtract', 'multiply', 'divide', 'power', 'root','int_divide', 'percent', 'abs_dif']:
                     # Perform the specified arithmetic operation
                     try:
-                        print("\nEnter numbers (or 'cancel' to abort):")
+                        print(Fore.CYAN + "\nEnter numbers (or 'cancel' to abort):")
                         a = input("First number: ")
                         if a.lower() == 'cancel':
-                            print("Operation cancelled")
+                            print(Fore.YELLOW + "Operation cancelled")
                             continue # pragma: no cover
                         b = input("Second number: ")
                         if b.lower() == 'cancel':
-                            print("Operation cancelled")
+                            print(Fore.YELLOW + "Operation cancelled")
                             continue # pragma: no cover
 
                         # Create the appropriate operation instance using the Factory pattern
@@ -118,32 +120,32 @@ def calculator_repl():  # pragma: no cover - interactive loop
                         if isinstance(result, Decimal):
                             result = result.normalize()
 
-                        print(f"\nResult: {result}")
+                        print(Fore.GREEN + f"\nResult: {result}")
                     except (ValidationError, OperationError) as e:
                         # Handle known exceptions related to validation or operation errors
-                        print(f"Error: {e}")
+                        print(Fore.RED + f"Error: {e}")
                     except Exception as e:
                         # Handle any unexpected exceptions
-                        print(f"Unexpected error: {e}")
+                        print(Fore.RED + f"Unexpected error: {e}")
                     continue # pragma: no cover
 
                 # Handle unknown commands
-                print(f"Unknown command: '{command}'. Type 'help' for available commands.")
+                print(Fore.YELLOW + f"Unknown command: '{command}'. Type 'help' for available commands.")
 
             except KeyboardInterrupt:
                 # Handle Ctrl+C interruption gracefully
-                print("\nOperation cancelled")
+                print(Fore.YELLOW + "\nOperation cancelled")
                 continue # pragma: no cover
             except EOFError:
                 # Handle end-of-file (e.g., Ctrl+D) gracefully
-                print("\nInput terminated. Exiting...")
+                print(Fore.YELLOW + "\nInput terminated. Exiting...")
                 break
             except Exception as e:
                 # Handle any other unexpected exceptions
-                print(f"Error: {e}")
+                print(Fore.RED + f"Error: {e}")
                 continue # pragma: no cover
 
     except Exception as e:
         # Handle fatal errors during initialization
-        print(f"Fatal error: {e}")
+        print(Fore.RED + f"Fatal error: {e}")
         raise
